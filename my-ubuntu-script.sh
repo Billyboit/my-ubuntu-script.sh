@@ -1,26 +1,41 @@
 #!/bin/bash
 
-# Custom Ubuntu VPS Setup Script
+# Update package list and upgrade installed packages
+sudo apt update && sudo apt upgrade -y
 
-# Update and Upgrade the system
-echo "Updating and upgrading the system..."
-sudo apt update -y && sudo apt upgrade -y
+# Install necessary packages (you can add more as needed)
+sudo apt install -y wget curl vim
 
-# Install necessary packages
-echo "Installing necessary packages..."
-sudo apt install -y figlet curl git ufw htop
+# Prompt for banner message and domain
+read -p "Enter banner message: " banner
+read -p "Enter your domain (subdomain): " domain
 
-# Enable UFW firewall and allow SSH
-echo "Configuring the firewall..."
-sudo ufw allow OpenSSH
-sudo ufw enable
+# Set the banner message for SSH login
+echo "$banner" | sudo tee /etc/issue.net
+echo "Banner /etc/issue.net" | sudo tee -a /etc/ssh/sshd_config
+sudo systemctl restart sshd
 
-# Display firewall status
-echo "Firewall status:"
-sudo ufw status
+# Apply the domain (if needed for web server, email, etc.)
+echo "Your domain is set to: $domain"
 
-# Clean up unused packages
-echo "Cleaning up unused packages..."
+# Example: For a web server setup (e.g., Nginx)
+# You could configure the domain here. Uncomment the below lines if you're installing Nginx:
+# sudo apt install -y nginx
+# sudo tee /etc/nginx/sites-available/default <<EOF
+# server {
+#     listen 80;
+#     server_name $domain;
+#     root /var/www/html;
+#     index index.html;
+# }
+# EOF
+# sudo systemctl restart nginx
+
+# (Optional) You can add any other custom setups like firewall, etc.
+# sudo ufw allow OpenSSH
+# sudo ufw enable
+
+# Clean up unnecessary packages
 sudo apt autoremove -y
 
-echo "Setup complete!"
+echo "Script execution completed. Banner and domain are configured."
